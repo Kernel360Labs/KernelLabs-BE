@@ -12,16 +12,18 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    List<Reservation> findByPlaceIdAndReservationDateAndStartTimeBeforeAndEndTimeAfter(
+    boolean existsByPlaceIdAndReservationDateAndStartTimeBeforeAndEndTimeAfter(
         Long placeId,
         LocalDate date,
         LocalTime endTime,
         LocalTime startTime
     );
 
-    boolean existsByPlaceIdAndReservationDateAndStartTimeBeforeAndEndTimeAfter(
+    // 예약 변경 시, 겹치는 예약이 있는지 확인 (자기 자신 제외)
+    boolean existsByPlaceIdAndReservationDateAndIdNotAndStartTimeBeforeAndEndTimeAfter(
         Long placeId,
         LocalDate date,
+        Long reservationId,
         LocalTime endTime,
         LocalTime startTime
     );

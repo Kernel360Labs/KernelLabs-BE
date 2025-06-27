@@ -2,11 +2,13 @@ package com.kernellabs.kernellabs.application.validator;
 
 import com.kernellabs.kernellabs.domain.Place;
 import com.kernellabs.kernellabs.domain.PlaceUnavailableDay;
+import com.kernellabs.kernellabs.domain.Reservation;
 import com.kernellabs.kernellabs.global.exception.CustomException;
 import com.kernellabs.kernellabs.global.exception.ErrorCode;
 import com.kernellabs.kernellabs.infrastructure.repository.PlaceUnavailableDayRepository;
 import com.kernellabs.kernellabs.infrastructure.repository.ReservationRepository;
 import com.kernellabs.kernellabs.presentation.dto.request.ReservationRequest;
+import com.kernellabs.kernellabs.presentation.dto.request.ReservationUpdateRequest;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +26,7 @@ public class ReservationValidator {
     private final PlaceUnavailableDayRepository unavailableDayRepository;
     private final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    public void validate(Place place, ReservationRequest request) {
+    public void validateForCreate(Place place, ReservationRequest request) {
         // 1. 시간 슬롯 자체의 유효성 검증 (포맷, 연속성)
         validateTimeSlots(request.getTimeSlots());
 
@@ -37,6 +39,18 @@ public class ReservationValidator {
         // 3. 중복 예약이 없는지 검증
         validateNoOverlappingReservations(place.getId(), request.getReservationDate(), requestEndTime, requestStartTime);
     }
+
+    public void validateForUpdate(Reservation reservation, ReservationUpdateRequest request) {
+        LocalDate newDate = request.getNewReservationDate();
+        List<String> newTimeSlots = request.getNewTimeSlots();
+        validateTimeSlots(newTimeSlots);
+
+        LocalTime newStartTime = LocalTime.parse(request.getNewTimeSlots().get(0), TIME_FORMATTER);
+        LocalTime newEndTime = LocalTime.parse(request.getNewTimeSlots().get(request.getNewTimeSlots().size() - 1), TIME_FORMATTER).plusHours(1);
+
+        validateAgainstOperatingHours(reservation.getPlace(), newDate, newStartTime, newEndTime);
+        // 자기 자신 제외하고 중복 검사
+        validateNoOverlappingForUpdate(reservation, newDate, newEndTime, newStartTime);    }
 
     // 시간 슬롯의 포맷과 연속성 검증
     private void validateTimeSlots(List<String> timeSlots) {
@@ -87,4 +101,17 @@ public class ReservationValidator {
 
     // 운영 시간을 담는 간단한 레코드
     private record OperatingHours(LocalTime openTime, LocalTime closeTime) {}
+
+    // 자기 자신을 제외하고 중복 예약을 확인하는 메서드
+    private void validateNoOverlappingForUpdate(Reservation reservation, LocalDate newDate, LocalTime newEndTime, LocalTime newStartTime) {
+        if (reservationRepository.existsByPlaceIdAndReservationDateAndIdNotAndStartTimeBeforeAndEndTimeAfter(
+            reservation.getPlace().getId(),
+            newDate,
+            reservation.getId(),
+            newEndTime,
+            newStartTime
+        )) {
+            throw new CustomException(ErrorCode.RESERVATION_ALREADY_EXISTS);
+        }
+    }
 }

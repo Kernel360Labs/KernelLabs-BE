@@ -34,7 +34,8 @@ public enum ErrorCode {
 	INVALID_TIME_SLOT_SEQUENCE("2003", "예약 시간은 연속되어야 합니다.", HttpStatus.BAD_REQUEST),
 	RESERVATION_NOT_POSSIBLE_ON_DAY("2004", "선택하신 날짜는 예약이 불가능합니다.", HttpStatus.CONFLICT),
 	INVALID_RESERVATION_TIME("2005", "예약 요청 시간이 운영 시간 범위를 벗어납니다.", HttpStatus.BAD_REQUEST),
-	RESERVATION_ALREADY_EXISTS("2006", "해당 시간에 이미 예약이 존재합니다.", HttpStatus.CONFLICT);
+	RESERVATION_ALREADY_EXISTS("2006", "해당 시간에 이미 예약이 존재합니다.", HttpStatus.CONFLICT),
+	INVALID_PASSWORD("2007", "비밀번호가 일치하지 않습니다.", HttpStatus.FORBIDDEN);
 
 	private final HttpStatus status;
 	private final String code;
