@@ -2,12 +2,14 @@ package com.kernellabs.kernellabs.presentation.controller;
 
 import com.kernellabs.kernellabs.application.ReservationService;
 import com.kernellabs.kernellabs.global.common.ApiResponse;
+import com.kernellabs.kernellabs.presentation.dto.request.ReservationDeleteRequest;
 import com.kernellabs.kernellabs.presentation.dto.request.ReservationRequest;
 import com.kernellabs.kernellabs.presentation.dto.request.ReservationUpdateRequest;
 import com.kernellabs.kernellabs.presentation.dto.response.ReservationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,5 +35,12 @@ public class ReservationController {
         @Valid @RequestBody ReservationUpdateRequest request) {
         ReservationResponse response = reservationService.updateReservation(reservationId, request);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @DeleteMapping("/{reservationId}")
+    public ResponseEntity<Void> deleteReservation(@PathVariable Long reservationId,
+        @Valid @RequestBody ReservationDeleteRequest request) {
+        reservationService.deleteReservation(reservationId, request);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -61,6 +61,16 @@ public class ReservationService {
         return ReservationResponse.from(reservation);
     }
 
+    @Transactional
+    public void deleteReservation(Long reservationId, ReservationDeleteRequest request) {
+        // 1. 예약 조회 및 비밀번호 확인
+        Reservation reservation = findReservationById(reservationId);
+        validatePassword(request.getPassword(), reservation.getPassword());
+
+        // 2. 예약 삭제
+        reservationRepository.delete(reservation);
+    }
+
     private LocalTime parseStartTime(List<String> timeSlots) {
         return LocalTime.parse(timeSlots.get(0), DateTimeFormatter.ofPattern("HH:mm"));
     }
