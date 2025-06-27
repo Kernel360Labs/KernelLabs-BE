@@ -25,6 +25,7 @@ public class Work {
     private Long id;
 
     private String name;         // 장소명
+    private String imgUrl;      // 이미지 주소
 
     @Column(columnDefinition = "TEXT")
     private String description;  // 설명
