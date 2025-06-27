@@ -23,8 +23,10 @@ public class VacationService {
 			--- 사용자 요청 정보 ---=
 			시작일: %s
 			기간: %s
+			시간대: %s
 			선호 분위기: %s
 			관심 활동: %s
+			교통: %s
 			동반자: %s (없을 경우 무시)
 			예산: %s (없을 경우 무시)
 			-------------------------
@@ -34,6 +36,7 @@ public class VacationService {
 			각 장소는 'name', 'address', 'activity', 'estimated_cost', 'estimated_time' 을 반드시 포함해야 합니다.
 			예상 비용은 '무료', '저렴함', '보통', '비쌈' 또는 구체적인 가격대를 한국어로 작성해 주세요.
 			활동 내용과 장소 설명은 구체적이고 매력적으로 작성해 주세요.
+			각 장소 사이는 교통 소요시간을 참고해서 찾아주세요. 
 			여행 계획은 최소 1일 이상 구성되어야 합니다.
 
 			응답 형식 예시:
@@ -51,8 +54,10 @@ public class VacationService {
 			""",
 			routeRequest.getStartDate(),
 			routeRequest.getDuration(),
+			routeRequest.getTime(),
 			routeRequest.getVibe(),
 			routeRequest.getInterests(),
+			routeRequest.getTransportation(),
 			routeRequest.getCompanion(),
 			routeRequest.getBudget()
 		);

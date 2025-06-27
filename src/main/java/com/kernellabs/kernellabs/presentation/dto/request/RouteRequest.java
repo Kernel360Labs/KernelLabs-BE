@@ -14,9 +14,13 @@ public class RouteRequest {
 	@NotNull
 	private String duration;
 	@NotNull
+	private String time;
+	@NotNull
 	private String vibe;
 	@NotNull
 	private String interests;
+	@NotNull
+	private String transportation;
 	private String companion;
 	private String budget;
 }
