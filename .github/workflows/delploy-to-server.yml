@@ -53,6 +53,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Create application-prod.yml for Docker build
+        run: |
+          mkdir -p src/main/resources 
+          echo "${{ secrets.PROPERTIES_PROD }}" > src/main/resources/application-prod.yml
+        shell: bash
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -77,21 +83,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Create application-prod.yml
-        run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.PROPERTIES_PROD }}" > src/main/resources/application-prod.yml
-        shell: bash
-
-      - name: Transfer application-prod.yml to Server
-        uses: appleboy/scp-action@v0.1.6
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "src/main/resources/application-prod.yml"
-          target: "/home/${{ secrets.SERVER_USER }}/app-config/"
-
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -99,14 +90,13 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            mkdir -p /home/${{ secrets.SERVER_USER }}/app-config/
-
+            # mkdir -p /home/${{ secrets.SERVER_USER }}/app-config/
             docker pull ${{ secrets.DOCKER_USERNAME }}/spring-app:latest
             docker stop spring-app || true
             docker rm spring-app || true
             docker run -d --name spring-app -p 80:8080 \
             -e TZ=Asia/Seoul \
-            -v /home/${{ secrets.SERVER_USER }}/app-config/application-prod.yml:/app/config/application-prod.yml \
+            # -v /home/${{ secrets.SERVER_USER }}/app-config/application-prod.yml:/app/config/application-prod.yml \
             -e SPRING_PROFILES_ACTIVE=prod \
             ${{ secrets.DOCKER_USERNAME }}/spring-app:latest
       
