@@ -89,13 +89,12 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # mkdir -p /home/${{ secrets.SERVER_USER }}/app-config/
             docker pull ${{ secrets.DOCKER_USERNAME }}/spring-app:latest
             docker stop spring-app || true
             docker rm spring-app || true
             docker run -d --name spring-app -p 80:8080 \
             -e TZ=Asia/Seoul \
-            # -v /home/${{ secrets.SERVER_USER }}/app-config/application-prod.yml:/app/config/application-prod.yml \
             -e SPRING_PROFILES_ACTIVE=prod \
             ${{ secrets.DOCKER_USERNAME }}/spring-app:latest
+
       
