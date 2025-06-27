@@ -2,6 +2,7 @@ package com.kernellabs.kernellabs.presentation.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +21,7 @@ public class VacationController {
 
 	private final VacationService vacationService;
 
-	@GetMapping("/vacations")
+	@PostMapping("/vacations")
 	public ResponseEntity<ApiResponse<RouteResponse>> getVacationRoute(
 		@RequestBody @Valid RouteRequest routeRequest
 	) {
