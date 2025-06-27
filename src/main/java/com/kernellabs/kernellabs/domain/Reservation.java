@@ -66,4 +66,10 @@ public class Reservation extends BaseEntity {
             .build();
     }
 
+    public void updateTimes(LocalDate newDate, LocalTime newStartTime, LocalTime newEndTime) {
+        this.reservationDate = newDate;
+        this.startTime = newStartTime;
+        this.endTime = newEndTime;
+    }
+
 }
