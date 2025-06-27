@@ -25,7 +25,7 @@ public class VacationController {
 
 	private final VacationService vacationService;
 
-	@GetMapping("/vacations")
+	@PostMapping("/vacations")
 	public ResponseEntity<ApiResponse<RouteResponse>> getVacationRoute(
 		@RequestBody @Valid RouteRequest routeRequest
 	) {
