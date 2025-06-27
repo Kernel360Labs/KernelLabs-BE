@@ -1,11 +1,10 @@
-name: CI/CD for Spring Boot
+name: KernelLabs CICD
 
 on:
   push:
-    branches:
-      - main
-      - develop
-
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
 jobs:
   build:
     name: Build and Test
@@ -48,11 +47,16 @@ jobs:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Create application-prod.yml for Docker build
+        run: |
+          mkdir -p src/main/resources 
+          echo "${{ secrets.PROPERTIES_PROD }}" > src/main/resources/application-prod.yml
+        shell: bash
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -74,8 +78,10 @@ jobs:
     name: Deploy to Server
     runs-on: ubuntu-latest
     needs: docker
-
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -88,4 +94,7 @@ jobs:
             docker rm spring-app || true
             docker run -d --name spring-app -p 80:8080 \
             -e TZ=Asia/Seoul \
+            -e SPRING_PROFILES_ACTIVE=prod \
             ${{ secrets.DOCKER_USERNAME }}/spring-app:latest
+
+      
