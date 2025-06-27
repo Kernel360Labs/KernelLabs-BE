@@ -2,7 +2,7 @@ spring:
   profiles:
     active: local
   datasource:
-    url: jdbc:mysql://localhost:3306/kernellabs?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/kernellabs?allowPublicKeyRetrieval=true&useSSL=false
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -11,6 +11,7 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: create-drop
+      dialect: org.hibernate.dialect.MySQL8Dialect
     properties:
       hibernate:
         format_sql: true
