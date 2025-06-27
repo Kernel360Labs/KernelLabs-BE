@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,12 @@ public class ReservationController {
     @PostMapping("")
     public ResponseEntity<ApiResponse<ReservationResponse>> createReservation(@RequestBody @Valid ReservationRequest request) {
         ReservationResponse response = reservationService.createReservation(request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/{reservationId}")
+    public ResponseEntity<ApiResponse<ReservationResponse>> getReservation(@PathVariable Long reservationId) {
+        ReservationResponse response = reservationService.getReservation(reservationId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

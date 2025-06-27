@@ -11,17 +11,14 @@ import com.kernellabs.kernellabs.presentation.dto.request.ReservationDeleteReque
 import com.kernellabs.kernellabs.presentation.dto.request.ReservationRequest;
 import com.kernellabs.kernellabs.presentation.dto.request.ReservationUpdateRequest;
 import com.kernellabs.kernellabs.presentation.dto.response.ReservationResponse;
-import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -45,6 +42,11 @@ public class ReservationService {
         // 4. 예약 저장 및 응답 반환
        reservationRepository.save(reservation);
        return ReservationResponse.from(reservation);
+    }
+
+    public ReservationResponse getReservation(Long reservationId) {
+        Reservation reservation = findReservationById(reservationId);
+        return ReservationResponse.from(reservation);
     }
 
     @Transactional
