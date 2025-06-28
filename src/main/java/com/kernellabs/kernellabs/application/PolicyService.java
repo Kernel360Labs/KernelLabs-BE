@@ -28,12 +28,12 @@ public class PolicyService {
 
 	public PolicyResponse getCurrentPolicy() {
 		String result = "";
-		if(redisUtil.getData(POLICY_REDIS_KEY).isEmpty()){
-			result = geminiSearchClient.generateAnswer(prompt);
-			redisUtil.setDataExpire(POLICY_REDIS_KEY, result, 1000);
+		if(redisUtil.existData(POLICY_REDIS_KEY)){
+			result = redisUtil.getData(POLICY_REDIS_KEY);
 		}
 		else{
-			result = redisUtil.getData(POLICY_REDIS_KEY);
+			result = geminiSearchClient.generateAnswer(prompt);
+			redisUtil.setDataExpire(POLICY_REDIS_KEY, result, 10800);
 		}
 		return PolicyResponse.builder().policy(result).build();
 
