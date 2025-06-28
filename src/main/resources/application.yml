@@ -2,7 +2,7 @@ spring:
   profiles:
     active: local
   datasource:
-    url: jdbc:mysql://localhost:3306/kernellabs?allowPublicKeyRetrieval=true&useSSL=false
+    url: ${MYSQL_URL}
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -15,9 +15,20 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD}
+      port: 6379
 logging:
   level:
-    org.hibernate.sql: debug
+    root: INFO              # 전체 로그 최소 INFO 이상 기록 :contentReference[oaicite:0]{index=0}
+    org.springframework.web: INFO   # Spring MVC 디스패처 서블릿 로그 :contentReference[oaicite:1]{index=1}
+
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
 
 ---
 spring:
@@ -25,3 +36,10 @@ spring:
     activate:
       on-profile: local
     import: application-local.yml
+
+---
+spring:
+  config:
+    activate:
+        on-profile: prod
+    import: application-prod.yml
