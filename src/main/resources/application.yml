@@ -23,8 +23,8 @@ spring:
       port: 6379
 logging:
   level:
-    root: INFO              # 전체 로그 최소 INFO 이상 기록 :contentReference[oaicite:0]{index=0}
-    org.springframework.web: INFO   # Spring MVC 디스패처 서블릿 로그 :contentReference[oaicite:1]{index=1}
+    root: DEBUG
+    org.springframework.web: DEBUG
 
 gemini:
   api:
