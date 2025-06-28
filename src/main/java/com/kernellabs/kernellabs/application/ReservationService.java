@@ -10,6 +10,7 @@ import com.kernellabs.kernellabs.infrastructure.repository.ReservationRepository
 import com.kernellabs.kernellabs.presentation.dto.request.ReservationDeleteRequest;
 import com.kernellabs.kernellabs.presentation.dto.request.ReservationRequest;
 import com.kernellabs.kernellabs.presentation.dto.request.ReservationUpdateRequest;
+import com.kernellabs.kernellabs.presentation.dto.request.ReservationVerityRequest;
 import com.kernellabs.kernellabs.presentation.dto.response.ReservationResponse;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
+
     private final ReservationRepository reservationRepository;
     private final PlaceRepository placeRepository;
     private final ReservationValidator reservationValidator;
@@ -40,12 +42,19 @@ public class ReservationService {
             request.getReservationDate(), request.getTimeSlots());
 
         // 4. 예약 저장 및 응답 반환
-       reservationRepository.save(reservation);
-       return ReservationResponse.from(reservation);
+        reservationRepository.save(reservation);
+        return ReservationResponse.from(reservation);
     }
 
-    public ReservationResponse getReservation(Long reservationId) {
+    @Transactional
+    public ReservationResponse getReservation(Long reservationId, ReservationVerityRequest request) {
+        // 1. ID로 예약 찾기
         Reservation reservation = findReservationById(reservationId);
+
+        // 2. 비밀번호와 request password 비교
+        validatePassword(request.getPassword(), reservation.getPassword());
+
+        // 3.DTO 변환
         return ReservationResponse.from(reservation);
     }
 
