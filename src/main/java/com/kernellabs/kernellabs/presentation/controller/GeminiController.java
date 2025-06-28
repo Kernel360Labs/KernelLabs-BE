@@ -1,6 +1,6 @@
 package com.kernellabs.kernellabs.presentation.controller;
 
-import com.kernellabs.kernellabs.application.GeminiService;
+import com.kernellabs.kernellabs.infrastructure.external.GeminiSearchClient;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/genie")
 @AllArgsConstructor
 public class GeminiController {
-    private final GeminiService geminiService;
+    private final GeminiSearchClient geminiSearchClient;
 
     @PostMapping("/chat")
     public ResponseEntity<ChatResponse> chat(@Valid @RequestBody ChatRequest req) {
-        String answer = geminiService.generateAnswer(req.getPrompt());
+        String answer = geminiSearchClient.generateAnswer(req.getPrompt());
         return ResponseEntity.ok(new ChatResponse(answer));
     }
 
