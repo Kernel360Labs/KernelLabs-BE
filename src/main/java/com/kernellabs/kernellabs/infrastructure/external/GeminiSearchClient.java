@@ -1,4 +1,4 @@
-package com.kernellabs.kernellabs.application;
+package com.kernellabs.kernellabs.infrastructure.external;
 
 import autovalue.shaded.com.google.common.collect.ImmutableList;
 import com.google.genai.Client;
@@ -10,13 +10,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GeminiService {
+public class GeminiSearchClient {
 
     private final Client client;
     private final Tool googleSearchTool;
     private final String modelName;
 
-    public GeminiService(
+    public GeminiSearchClient(
         @Value("${gemini.api.key}") String apiKey,
         @Value("${gemini.model:gemini-2.5-flash}") String modelName
     ) {
