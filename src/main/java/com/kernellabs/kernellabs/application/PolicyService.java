@@ -24,7 +24,7 @@ public class PolicyService {
       각 소주제 아래에 자세한 설명을 추가해줘.
       각 항목은 줄 바꿈(\n)을 사용해서 구분해줘.
       다른 지역 정보나 일반적인 내용은 제외하고, 오직 의성군 관련 혜택만 다뤄줘.
-      그리고 맨 밑에 의성 군청 웹사이트 주소만 넣어줘.
+      그리고 맨 밑에 의성 군청 웹사이트를 제외하고 웹사이트 url 주소는 절대 넣지마.
       """;
 
 	public PolicyResponse getCurrentPolicy() {
