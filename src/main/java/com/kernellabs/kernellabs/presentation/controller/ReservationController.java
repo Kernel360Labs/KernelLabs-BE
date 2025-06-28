@@ -5,6 +5,7 @@ import com.kernellabs.kernellabs.global.common.ApiResponse;
 import com.kernellabs.kernellabs.presentation.dto.request.ReservationDeleteRequest;
 import com.kernellabs.kernellabs.presentation.dto.request.ReservationRequest;
 import com.kernellabs.kernellabs.presentation.dto.request.ReservationUpdateRequest;
+import com.kernellabs.kernellabs.presentation.dto.request.ReservationVerityRequest;
 import com.kernellabs.kernellabs.presentation.dto.response.ReservationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,9 +32,10 @@ public class ReservationController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @GetMapping("/{reservationId}")
-    public ResponseEntity<ApiResponse<ReservationResponse>> getReservation(@PathVariable Long reservationId) {
-        ReservationResponse response = reservationService.getReservation(reservationId);
+    @PostMapping("/{reservationId}")
+    public ResponseEntity<ApiResponse<ReservationResponse>> getReservation(@PathVariable Long reservationId,
+        @Valid @RequestBody ReservationVerityRequest request) {
+        ReservationResponse response = reservationService.getReservation(reservationId, request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

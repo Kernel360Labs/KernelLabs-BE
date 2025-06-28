@@ -29,4 +29,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     );
 
     List<Reservation> findByPlaceIdAndReservationDate(Long placeId, LocalDate date);
+
+    // 특정 장소와 날짜의 모든 예약 조회 (특정 예약을 제외)
+    List<Reservation> findByPlaceIdAndReservationDateAndIdNot(Long placeId, LocalDate date, Long reservationId);
 }

@@ -31,11 +31,12 @@ public class PlaceController {
 
     @GetMapping("/{placeId}")
     public ResponseEntity<ApiResponse<PlaceDetailResponse>> getPlace(@PathVariable Long placeId,
-        @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate date) {
+        @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate date,
+        @RequestParam(required = false) Long editingReservationId) {
         // 날짜 파라미터가 없으면 오늘 날짜 기본값
         LocalDate targetDate = (date == null) ? LocalDate.now() : date;
 
-        PlaceDetailResponse response = placeService.getPlaceDetailWithDate(placeId, targetDate);
+        PlaceDetailResponse response = placeService.getPlaceDetailWithDate(placeId, targetDate, editingReservationId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

@@ -9,12 +9,15 @@ import com.kernellabs.kernellabs.infrastructure.repository.ReservationRepository
 import com.kernellabs.kernellabs.presentation.dto.response.PlaceDetailResponse;
 import com.kernellabs.kernellabs.presentation.dto.response.PlaceListResponse;
 import com.kernellabs.kernellabs.presentation.dto.response.TimeSlotResponse;
+import com.kernellabs.kernellabs.presentation.dto.response.enums.SlotStatus;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +36,7 @@ public class PlaceService {
             .collect(Collectors.toList());
     }
 
-    public PlaceDetailResponse getPlaceDetailWithDate(Long placeId, LocalDate date) {
+    public PlaceDetailResponse getPlaceDetailWithDate(Long placeId, LocalDate date, Long editingReservationId) {
         // 1. 장소 정보 조회
         Place place = placeRepository.findById(placeId)
             .orElseThrow(() -> new CustomException(ErrorCode.PLACE_NOT_FOUND));
@@ -42,39 +45,68 @@ public class PlaceService {
         LocalTime openTime = place.getOpenTime();
         LocalTime closeTime = place.getCloseTime();
 
-        // 3. 해당 날짜에 이미 예약된 시간 목록 조회
-        List<Reservation> reservations = reservationRepository.findByPlaceIdAndReservationDate(placeId, date);
-        Set<LocalTime> reservedSlots = getReservedSlots(reservations);
+        // 3.  해당 날짜의 '모든' 예약을 일단 다 가져온다.
+        List<Reservation> allReservationsOnDate = reservationRepository.findByPlaceIdAndReservationDate(placeId, date);
 
-        // 4. 전체 시간 슬롯 생성 및 예약 가능 여부 판단
-        List<TimeSlotResponse> timeSlots = generateTimeSlots(openTime, closeTime, reservedSlots);
+        // 4. '나의 예약' 시간과 '다른 사람 예약' 시간을 분리하여 Set으로 만든다.
+        Set<LocalTime> myReservedSlots = getSlotsForSpecificReservation(allReservationsOnDate, editingReservationId);
+        Set<LocalTime> othersReservedSlots = getSlotsForOtherReservations(allReservationsOnDate, editingReservationId);
 
-        // 5. 최종 응답 DTO 생성 및 반환
+        // 5. 3가지 상태를 포함한 전체 시간 슬롯 리스트를 생성한다.
+        List<TimeSlotResponse> timeSlots = generateTimeSlotsWithStatus(openTime, closeTime, myReservedSlots, othersReservedSlots);
+
+        // 6. 최종 응답 DTO를 만들어 반환한다.
         return PlaceDetailResponse.of(place, timeSlots);
     }
 
-    private List<TimeSlotResponse> generateTimeSlots(LocalTime openTime, LocalTime closeTime, Set<LocalTime> reservedSlots) {
+    private List<TimeSlotResponse> generateTimeSlotsWithStatus(LocalTime openTime, LocalTime closeTime, Set<LocalTime> mySlots, Set<LocalTime> otherSlots) {
         List<TimeSlotResponse> slots = new ArrayList<>();
         LocalTime currentTime = openTime;
         while (!currentTime.isAfter(closeTime.minusHours(1))) {
-            boolean isAvailable = !reservedSlots.contains(currentTime);
-            slots.add(new TimeSlotResponse(currentTime.toString(), isAvailable));
+            SlotStatus status;
+            if (mySlots.contains(currentTime)) {
+                status = SlotStatus.MY_RESERVATION;
+            } else if (otherSlots.contains(currentTime)) {
+                status = SlotStatus.UNAVAILABLE;
+            } else {
+                status = SlotStatus.AVAILABLE;
+            }
+            slots.add(new TimeSlotResponse(currentTime.toString(), status));
             currentTime = currentTime.plusHours(1);
         }
         return slots;
     }
 
-    private Set<LocalTime> getReservedSlots(List<Reservation> reservations) {
+    private Set<LocalTime> getSlotsForSpecificReservation(List<Reservation> reservations, Long reservationId) {
+        if (reservationId == null) {
+            return Collections.emptySet();
+        }
         return reservations.stream()
-            .flatMap(reservation -> {
-                List<LocalTime> slots = new ArrayList<>();
-                LocalTime current = reservation.getStartTime();
-                while (current.isBefore(reservation.getEndTime())) {
-                    slots.add(current);
-                    current = current.plusHours(1);
-                }
-                return slots.stream();
-            })
+            .filter(r -> r.getId().equals(reservationId))
+            .flatMap(this::expandReservationToSlots)
             .collect(Collectors.toSet());
+    }
+    private Set<LocalTime> getSlotsForOtherReservations(List<Reservation> reservations, Long reservationId) {
+        // '나의 예약 ID'가 없는 경우(신규 예약 모드)에는 모든 예약이 '다른 사람 예약'이 된다.
+        if (reservationId == null) {
+            return reservations.stream()
+                .flatMap(this::expandReservationToSlots)
+                .collect(Collectors.toSet());
+        }
+        // '나의 예약 ID'가 있는 경우(수정 모드)에는 해당 예약을 제외한다.
+        return reservations.stream()
+            .filter(r -> !r.getId().equals(reservationId))
+            .flatMap(this::expandReservationToSlots)
+            .collect(Collectors.toSet());
+    }
+
+    private Stream<LocalTime> expandReservationToSlots(Reservation reservation) {
+        List<LocalTime> slots = new ArrayList<>();
+        LocalTime current = reservation.getStartTime();
+        while (current.isBefore(reservation.getEndTime())) {
+            slots.add(current);
+            current = current.plusHours(1);
+        }
+        return slots.stream();
     }
 }

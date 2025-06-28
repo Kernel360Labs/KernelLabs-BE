@@ -1,5 +1,6 @@
 package com.kernellabs.kernellabs.presentation.dto.response;
 
+import com.kernellabs.kernellabs.presentation.dto.response.enums.SlotStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -8,6 +9,6 @@ import lombok.Getter;
 public class TimeSlotResponse {
 
     private String time;
-    private boolean isAvailable;
+    private SlotStatus status;
 
 }
